@@ -70,6 +70,9 @@
 <!-- Test use:active with a regular expression -->
 <p><a href="#/" use:active={/\/*\/hi/}>This link</a> is active when you're matching <code>/*/hi</code></p>
 
+<button on:click={() => updateRoute()}>Update routes</button>
+<button on:click={() => replace('/updateable')}>test</button>
+
 <!-- Used for testing -->
 <pre id="logbox">{logbox}</pre>
 
@@ -99,6 +102,11 @@ import active from '../../../active'
 
 // Import the list of routes
 import routes from './routes'
+
+// Normally, this would be: `import {wrap} from 'svelte-spa-router/wrap'`
+import {wrap} from '../../../wrap.js'
+
+import Foo from './routes/Foo.svelte'
 
 // Contains logging information used by tests
 let logbox = ''
@@ -133,6 +141,15 @@ function routeEvent(event) {
     // eslint-disable-next-line no-console
     console.info('Caught event routeEvent', event.detail)
     logbox += 'routeEvent - ' + JSON.stringify(event.detail) + '\n'
+}
+
+let counter = 0
+function updateRoute() {
+    counter++
+    routes['/updateable'] = wrap({
+        component: Foo,
+        props: {staticProp: 'update counter: ' + counter}
+    })
 }
 
 // Enables the restoreScrollState option by checking for the "scroll=1" querystring parameter

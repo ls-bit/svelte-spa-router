@@ -103,6 +103,11 @@ if (!urlParams.has('routemap')) {
             props: {staticProp: 'this is static'}
         }),
 
+        '/updateable': wrap({
+            component: Foo,
+            props: {staticProp: 'no update yet'}
+        }),
+
         // This component contains a nested router
         // Note that we must match both '/nested' and '/nested/*' for the nested router to work (or look below at doing this with a Map and a regular expression)
         '/nested': wrap({
@@ -155,6 +160,11 @@ else {
     // Thanks to being able to define routes via regular expressions, this allows us to use a single line rather than 2 ('/nested' and '/nested/*')
     routes.set(/^\/nested(\/(.*))?/, wrap({
         asyncComponent: () => import('./routes/Nested.svelte')
+    }))
+
+    routes.set('/updateable', wrap({
+        component: Foo,
+        props: {staticProp: 'no update yet'}
     }))
 
     // Catch-all, must be last

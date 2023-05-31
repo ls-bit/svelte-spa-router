@@ -434,19 +434,33 @@ class RouteItem {
     }
 }
 
-// Set up all routes
-const routesList = []
-if (routes instanceof Map) {
-    // If it's a map, iterate on it right away
-    routes.forEach((route, path) => {
-        routesList.push(new RouteItem(path, route))
-    })
+let initialComponentObj = false;
+
+// Set up and update all routes on change
+let routesList = createRoutesList(routes)
+
+$: {
+   routesList = createRoutesList(routes)
+   if (!initialComponentObj) {
+        showRoute(lastLoc);
+   }
 }
-else {
-    // We have an object, so iterate on its own properties
-    Object.keys(routes).forEach((path) => {
-        routesList.push(new RouteItem(path, routes[path]))
-    })
+
+function createRoutesList(routes) {
+    const routesList = []
+    if (routes instanceof Map) {
+        // If it's a map, iterate on it right away
+        routesList.forEach((route, path) => {
+            routesList.push(new RouteItem(path, route))
+        })
+    } 
+    else {
+        // We have an object, so iterate on its own properties
+        Object.keys(routes).forEach((path) => {
+            routesList.push(new RouteItem(path, routes[path]))
+        })
+    }
+    return routesList
 }
 
 // Props for the component to render
@@ -502,6 +516,10 @@ let componentObj = null
 const unsubscribeLoc = loc.subscribe(async (newLoc) => {
     lastLoc = newLoc
 
+    await showRoute(newLoc)
+})
+
+async function showRoute(newLoc) {
     // Find a route matching the location
     let i = 0
     while (i < routesList.length) {
@@ -568,6 +586,7 @@ const unsubscribeLoc = loc.subscribe(async (newLoc) => {
             // If there is a "default" property, which is used by async routes, then pick that
             component = (loaded && loaded.default) || loaded
             componentObj = obj
+            initialComponentObj = true
         }
 
         // Set componentParams only if we have a match, to avoid a warning similar to `<Component> was created with unknown prop 'params'`
@@ -598,7 +617,7 @@ const unsubscribeLoc = loc.subscribe(async (newLoc) => {
     component = null
     componentObj = null
     params.set(undefined)
-})
+}
 
 onDestroy(() => {
     unsubscribeLoc()
