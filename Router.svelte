@@ -434,17 +434,9 @@ class RouteItem {
     }
 }
 
-let initialComponentObj = false;
-
 // Set up and update all routes on change
 let routesList = createRoutesList(routes)
-
-$: {
-   routesList = createRoutesList(routes)
-   if (!initialComponentObj) {
-        showRoute(lastLoc);
-   }
-}
+$: routesList = createRoutesList(routes)
 
 function createRoutesList(routes) {
     const routesList = []
@@ -516,10 +508,6 @@ let componentObj = null
 const unsubscribeLoc = loc.subscribe(async (newLoc) => {
     lastLoc = newLoc
 
-    await showRoute(newLoc)
-})
-
-async function showRoute(newLoc) {
     // Find a route matching the location
     let i = 0
     while (i < routesList.length) {
@@ -586,7 +574,6 @@ async function showRoute(newLoc) {
             // If there is a "default" property, which is used by async routes, then pick that
             component = (loaded && loaded.default) || loaded
             componentObj = obj
-            initialComponentObj = true
         }
 
         // Set componentParams only if we have a match, to avoid a warning similar to `<Component> was created with unknown prop 'params'`
@@ -617,7 +604,7 @@ async function showRoute(newLoc) {
     component = null
     componentObj = null
     params.set(undefined)
-}
+})
 
 onDestroy(() => {
     unsubscribeLoc()
